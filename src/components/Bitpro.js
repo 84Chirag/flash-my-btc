@@ -106,7 +106,7 @@ const Bitpro = (props) => {
             </div>
             <div className="col-sm-12">
               <div className="row ova-item">
-                <div className="col-lg-3 col-md-6 iq-r-mt-40">
+                <div className="col-lg-4 col-md-4 iq-r-mt-40">
                   <div className="iq-small-icon ui-card">
                     <img
                       src={bitgen}
@@ -118,7 +118,7 @@ const Bitpro = (props) => {
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-3 col-md-6 iq-r-mt-40">
+                <div className="col-lg-4 col-md-4 iq-r-mt-40">
                   <div className="iq-small-icon ui-card">
                     <img
                       src={bitpro}
@@ -130,7 +130,7 @@ const Bitpro = (props) => {
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-3 col-md-6 iq-r-mt-40">
+                <div className="col-lg-4 col-md-4 iq-r-mt-40">
                   <div className="iq-small-icon active ui-card">
                     <img
                       src={vector}
