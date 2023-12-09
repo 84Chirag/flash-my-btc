@@ -180,6 +180,7 @@ let Footer = () => {
     const [showAlerts1, setshowAlerts1] = useState(false);
     const [showPasswordMismatchAlert, setShowPasswordMismatchAlert] = useState(false);
     const [correctinfoAlert, setCorrectInfoAlert] = useState(false);
+    const [failedFetch, setFailedFetch] = useState(false)
     const [useddataAlert, setUsedDataAlert] = useState(false);
 
     // for signup
@@ -188,39 +189,66 @@ let Footer = () => {
     const submitdata = async (e) => {
         e.preventDefault();
         const { name, email, password, cpassword } = credentials;
+    
+        // Check if the password matches the confirmed password
         if (password === cpassword) {
             const url = 'http://localhost:3001/auth/signup';
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ name, email, password })
-            });
-            const json = await response.json();
-            // console.log(json);
-            if (json.success === true) {
-                localStorage.setItem('auth-token', json.authtoken);
-                setshowAlerts(true);
-                setTimeout(() => {
-                    setshowAlerts(false);
-                    navigate('/');
-                }, 2000);
-            } else {
-                // alert("wrong!")
-                setUsedDataAlert(true);
-                setTimeout(() => {
-                    setUsedDataAlert(false)
-                }, 2000);
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+    
+                // Check if the fetch was successful (status code 2xx)
+                if (response.ok) {
+                    const json = await response.json();
+                    // console.log(json);
+    
+                    if (json.success === true) {
+                        // Save the authentication token to local storage
+                        localStorage.setItem('auth-token', json.authtoken);
+                        setshowAlerts(true);
+    
+                        // Redirect to the home page after a successful signup
+                        setTimeout(() => {
+                            setshowAlerts(false);
+                            navigate('/');
+                        }, 2000);
+                    } else {
+                        // Handle unsuccessful signup (e.g., duplicate email)
+                        setUsedDataAlert(true);
+                        setTimeout(() => {
+                            setUsedDataAlert(false)
+                        }, 3000);
+                    }
+                } else {
+                    // Handle unsuccessful fetch (e.g., network error)
+                    console.error('Failed to fetch:', response.statusText);
+                    setFailedFetch(true);
+                    setTimeout(() => {
+                        setFailedFetch(false)
+                    }, 4000);
+                }
+            } catch (error) {
+                // Handle other errors that might occur during the fetch
+                // console.error('Error during fetch:', error);
+                setFailedFetch(true);
+                    setTimeout(() => {
+                        setFailedFetch(false)
+                    },4000);
             }
-        }
-        else{
+        } else {
+            // Passwords do not match
             setShowPasswordMismatchAlert(true);
             setTimeout(() => {
                 setShowPasswordMismatchAlert(false);
             }, 2000);
         }
     }
+
     const savechange = (e) => {
         setCredentials({ ...credentials, [e.target.name]: e.target.value })
     }
@@ -230,31 +258,52 @@ let Footer = () => {
     const submitdata1 = async (e) => {
         e.preventDefault();
         const url = 'http://localhost:3001/auth/login';
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: credentials1.email1, password: credentials1.password1 })
-        });
-        const json = await response.json();
-        // console.log(json);
-        if (json.success === true) {
-            localStorage.setItem('auth-token', json.authtoken);
-            setshowAlerts1(true);
+    
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: credentials1.email1, password: credentials1.password1 })
+            });
+    
+            // Check if the fetch was successful (status code 2xx)
+            if (response.ok) {
+                const json = await response.json();
+                // console.log(json);
+    
+                if (json.success === true) {
+                    localStorage.setItem('auth-token', json.authtoken);
+                    setshowAlerts1(true);
+    
+                    setTimeout(() => {
+                        setshowAlerts1(false);
+                        navigate('/bitpro');
+                    }, 2000);
+                } else {
+                    // Handle unsuccessful login (e.g., incorrect credentials)
+                    setCorrectInfoAlert(true);
+                    setTimeout(() => {
+                        setCorrectInfoAlert(false);
+                    }, 3000);
+                }
+            } else {
+                // Handle unsuccessful fetch (e.g., network error)
+                console.error('Failed to fetch:', response.statusText);
+                setFailedFetch(true);
+                setTimeout(() => {
+                    setFailedFetch(false);
+                }, 4000);
+            }
+        } catch (error) {
+            // Handle other errors that might occur during the fetch
+            // console.error('Error during fetch:', error);
+            setFailedFetch(true);
             setTimeout(() => {
-                setshowAlerts1(false);
-                navigate('/bitpro');
-            }, 2000);
-            // alert('sucessfull!')
-        } else {
-            // alert("wrong!")
-            setCorrectInfoAlert(true);
-            setTimeout(() => {
-                setCorrectInfoAlert(false);
-            }, 2000);
+                setFailedFetch(false);
+            }, 4000);
         }
-
     }
     const savechange1 = (e) => {
         setCredentials1({ ...credentials1, [e.target.name]: e.target.value })
@@ -290,6 +339,7 @@ let Footer = () => {
             {showPasswordMismatchAlert && <Alert type="warning" msg="Your Password and Confirm Password Doesn't Match" />}
             {correctinfoAlert && <Alert type="warning" msg="Enter Your Credentials Correctly" />}
             {useddataAlert && <Alert type="warning" msg="User With This Email Exists" />}
+            {failedFetch && <Alert type="warning" msg="There has been some Internal Error, please Login or Signup after some time" />}
             <footer id="contact" className="iq-footer1 black-bg overview-block-pt iq-bg-over iq-over-black-20 mt-5" >
                 <div className="container">
                     <div className="row">
